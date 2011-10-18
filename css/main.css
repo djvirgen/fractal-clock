@@ -1,0 +1,148 @@
+html, 
+body{
+    font-family: trebuchet ms;
+    color: #999;
+    background: #222;
+}
+
+body{
+    font-size: 1em;
+    width: 820px;
+    margin: 0 auto;
+}
+
+h1{
+    margin: 1.3em 0 0;
+    padding: 0;
+    font-size: 1.8em;
+    color: #bbb;
+}
+
+p{
+    margin: 0.5em 0 1em;
+    padding: 0;
+}
+
+a{
+    color: #36f;
+}
+
+img.icon{
+    border: none;
+    margin: 0 4px 0 0;
+    vertical-align: middle;
+}
+
+#canvas-container{
+    float: left;
+    width: 400px;
+}
+
+#canvas-controls{
+    font-size: 0.8em;
+}
+
+#canvas-controls a{
+    margin-right: 8px;
+}
+
+canvas{
+    border: 1px solid #777;
+    -webkit-box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+}
+
+dl#fractal-controls{
+    width: 400px;
+    text-align: left;
+    margin: 10px auto 0 420px;
+    font-size: 0.9em;
+}
+
+dl#fractal-controls dt{
+    float: left;
+    width: 110px;
+    margin: 0 0 0.25em;
+    font-weight: bold;
+}
+
+dl#fractal-controls dd{
+    margin: 0 0 0.25em 120px;
+}
+
+dl#fractal-controls dd input[type=range]{
+    width: 280px;
+}
+
+dl#fractal-controls input[type=checkbox]{
+    margin-right: 4px;
+}
+
+dl#fractal-controls dd ul{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+dl#fractal-controls dd ul li{
+    margin: 0;
+    padding: 0;
+}
+
+pre{
+    font-family: consolas, monospace, courier new, fixed-width;
+    border: 1px solid #555;
+    background: #000;
+    padding: 0.5em;
+    font-size: 0.75em;
+}
+
+div.footer{
+    text-align: center;
+    font-size: 0.75em;
+    margin: 2em 0 1em;
+}
+
+span.error{
+    color: #f00;
+    font-weight: bold;
+}
+
+#help{
+    background: #111;
+    color: #ccc;
+    opacity: 0.8;
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    padding: 10px;
+    border: 1px solid #777;
+    -webkit-box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    font-size: 0.8em;
+    display: none;
+}
+
+#help h3{
+    margin: 0 0 0.5em;
+}
+
+#help dl{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 20em;
+}
+
+#help dl dt{
+    float: left;
+    width: 4em;
+    margin: 0 0 0.2em;
+}
+
+#help dl dd{
+    margin: 0 0 0.2em 4.5em;
+}

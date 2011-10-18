@@ -1,0 +1,188 @@
+/**
+ * FractalClock
+ * http://www.virgentech.com
+ *  
+ * @copyright
+ * Copyright (C) 2011 Hector Virgen.
+ */
+
+// Global configuration
+userLength = 6,             // Fractal length (end-to-end repetitions)
+userTrails = 30,            // Number of trails
+userZoom = 50,              // Zoom value
+userPhase = 0,              // Adjusts phase of trails in radians
+userHue = 150,              // Hue (color)
+userSaturation = 255,       // Saturation
+userLightness = 255,        // Lightness
+baseSpeed = 10,             // Used to calculate what speed 1 is
+speedFactor = 1,            // Used for correcting user speed
+userSpeed = 1;              // Speed of trail rotation
+userHueShifting = 255,      // Amount of hue to shift
+hueCycle = 0,               // Hue cylce
+userLineSize = 2.0,         // Thickness of the lines
+userDotSize = 15.0,         // Dot size
+userOpacity = 200,          // Opacity
+userTimeShift = 0,          // Adjust time up to 12 hours in advance
+userMode = 'normal',        // Ent-point connection mode (normal, blackhole, spirograph-clockwise, spirograph-counterclockwise, spirograph-twist)
+x = width / 2,              // Horizontal center of clock
+y = height / 2,             // Vertical center of clock
+nx = x,                     // Eventual horizontal center of clock
+ny = y,                     // Eventual vertical center of clock
+mDelay = 32,                // Time taken to get to eventual center -- larger means slower
+types = {                   // Type of things to draw
+    lines: true,            // When enabled draws lines using endpoints
+    dots: false             // When enabled draws dots on one endpoint
+},
+lines = [],                 // Array of lines to be drawn during a frame
+trailShift = 0.0,           // Shifts the trails by amount
+showFps = false;            // Shows FPS when enabled
+
+void setup() {
+    stroke(255);
+    smooth();
+    colorMode(HSB, 255);
+    strokeCap(ROUND);
+    date = new Date();
+    trailShift = map(((date.getMinutes() % baseSpeed) * 60) + date.getSeconds() + ((date.getMilliseconds() % 1000) / 1000), 0, 60 * baseSpeed, 0, TWO_PI);
+}
+
+void draw() {
+	background(0);
+	noFill();
+	noStroke();
+    actualDate = new Date();
+	userDate = new Date(parseInt(actualDate.getTime() + (userTimeShift * 3600000)));
+	lines = [];
+	
+	x += (nx-x)/mDelay;
+	y += (ny-y)/mDelay;
+	
+	// Angles for sin() and cos() start at 3 o'clock;
+	// subtract HALF_PI to make them start at the top
+	float s = map(userDate.getSeconds() + ((userDate.getMilliseconds() % 1000) / 1000), 0, 60, 0, TWO_PI) - HALF_PI;
+	float m = map(userDate.getMinutes() + ((userDate.getSeconds() % 60) / 60), 0, 60, 0, TWO_PI) - HALF_PI;
+	float h = map((userDate.getHours() % 12) + (userDate.getMinutes() / 60), 0, 12, 0, TWO_PI) - HALF_PI;
+
+    trailShift = (trailShift + (userSpeed * speedFactor / TWO_PI / 600)) % TWO_PI;
+    
+	maxWeight = 1.0;
+	delay = userTrails;
+	maxOpacity = userOpacity;
+	iDelay = (trailShift + userPhase) % TWO_PI;
+	length = userZoom;
+	maxOpacityStep = userOpacity / delay;
+	maxWeightStep = 1 / delay;
+	lengthStep = (sin(iDelay) * userZoom) / userLength;
+	
+	for (var i = 0; i < delay; i++) {
+	    start = [x, y];
+		weight = maxWeight;
+		opacity = maxOpacity;
+		opacityStep = maxOpacity / userLength;
+		weightStep = weight / userLength;
+		
+		// Makes first set of lines (actual time) slightly thicker
+        if (i == 0) {
+            weight *= 1.25;
+        }
+        
+		for (j = 0; j < userLength; j++) {
+	        parts = [h, m, s];
+		    for (var k = 0; k < 3; k++) {
+                start = getEndPoint(opacity, weight, parts[k], length, start);
+		    }
+
+			weight -= weightStep;
+			opacity -= opacityStep;
+			
+			switch (userMode) {
+			    case 'blackhole':
+			        length += lengthStep;
+			        break;
+
+			    case 'spirograph-clockwise':
+                    h += iDelay;
+                    m += iDelay;
+                    s += iDelay;
+                    break;
+                    
+			    case 'spirograph-counterclockwise':
+                    h -= iDelay;
+                    m -= iDelay;
+                    s -= iDelay;
+                    break;
+
+			    case 'spirograph-twist':
+			        if (0 == j % 2) {
+                        h += iDelay;
+                        m += iDelay;
+                        s += iDelay;
+			        } else {
+	                    h -= iDelay;
+	                    m -= iDelay;
+	                    s -= iDelay;
+			        }
+                    break;
+			}
+		}
+		
+		maxOpacity -= maxOpacityStep;
+		maxWeight -= maxWeightStep;
+        h += iDelay;
+        m += iDelay;
+        s += iDelay;
+	}
+	
+	doDraw(lines);
+	
+	if (showFps) {
+    	fill(0, 0, 255, 200);
+    	text('FPS: ' + Math.round(frameRate * 100) / 100, 10, height - 10);
+	}
+}
+
+array getEndPoint(alpha, weight, radians, length, start) {
+	end = [cos(radians) * length + start[0], sin(radians) * length + start[1]];
+	lines.push({
+	   alpha: alpha,
+	   weight: weight,
+	   start: start,
+	   end: end
+	});
+	return end;
+}
+
+void doDraw(lines) {
+    var hue = (userHue + userHueShifting) % 255;
+    if (hue < 0) hue += 255;
+    var totalLines = lines.length;
+    var hueShiftStep = userHueShifting / totalLines;
+    
+    // Draw each line
+    for (var i = totalLines - 1; i >= 0; i--) {
+        // Color
+        stroke(hue, userSaturation, userLightness, lines[i].alpha);
+
+        // Lines
+        if (types.lines) {
+            strokeWeight(userLineSize * lines[i].weight);
+            line(lines[i].start[0], lines[i].start[1], lines[i].end[0], lines[i].end[1]);
+        }
+        
+        // Dots
+        if (types.dots) {
+            strokeWeight(userDotSize * lines[i].weight);
+            point(lines[i].end[0], lines[i].end[1]);
+        }
+        
+        // Shift
+        hue -= hueShiftStep;
+        if (hue < 0) hue += 255;
+        hue = hue % 255;
+    }
+}
+
+void mousePressed() {
+    nx = mouseX;
+    ny = mouseY;
+}
